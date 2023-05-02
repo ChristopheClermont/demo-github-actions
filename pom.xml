@@ -15,6 +15,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
 	</properties>
@@ -25,6 +26,10 @@
 			<name>GitHub Packages</name>
 			<url>https://maven.pkg.github.com/ChristopheClermont/demo-github-actions</url>
 		</repository>
+		<site>
+			<id>github_pages</id>
+			<url>scm:git:https://git@github.com/ChristopheClermont/demo-github-actions.git</url>
+		</site>
 	</distributionManagement>
 
 	<dependencies>
@@ -88,8 +93,29 @@
 					<version>2.8.2</version>
 				</plugin>
 
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-scm-publish-plugin</artifactId>
+					<version>3.2.1</version>
+				</plugin>
+
 			</plugins>
 		</pluginManagement>
+
+		<plugins>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-scm-publish-plugin</artifactId>
+				<configuration>
+					<scmBranch>gh-pages</scmBranch>
+					<serverId>github_pages</serverId>
+					<tryUpdate>true</tryUpdate>
+				</configuration>
+			</plugin>
+
+		</plugins>
+
 	</build>
 
 	<reporting>
