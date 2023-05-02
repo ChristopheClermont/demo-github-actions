@@ -1,11 +1,18 @@
-name: Java CI
+name: Maven Build
 
-on: [push]
+on:
+  pull_request:
+    branches:
+      - main
 
 jobs:
 
   build-and-test:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout Code
@@ -16,18 +23,28 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - name: Run Maven to Build and Verify
-        run: mvn --batch-mode --update-snapshots verify
+      - name: Run Maven to Build, Test, Verify and Deploy
+        run: mvn --batch-mode --update-snapshots deploy site
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Compute SHA for the Build
         id: vars
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-      - name: Create Artifact Archive
+      - name: Attach Artifact
         uses: actions/upload-artifact@v3
         with:
           name: All-Artifacts-${{ steps.vars.outputs.sha_short }}
           path: |
             target/*.jar
-      - name: Upload JAR file
+      - name: Attach Surefire Reports
         uses: actions/upload-artifact@v3
         with:
-          path: target/demo-github-actions*.jar
+          name: surefire-reports-${{ steps.vars.outputs.sha_short }}
+          path: |
+            target/surefire-reports/*
+      - name: Attach Site
+        uses: actions/upload-artifact@v3
+        with:
+          name: site-${{ steps.vars.outputs.sha_short }}
+          path: |
+            target/site/*
