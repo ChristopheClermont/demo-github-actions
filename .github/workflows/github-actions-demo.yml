@@ -1,0 +1,33 @@
+name: Java CI
+
+on: [push]
+
+jobs:
+
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      - name: Run Maven to Build and Verify
+        run: mvn --batch-mode --update-snapshots verify
+      - name: Compute SHA for the Build
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: Create Artifact Archive
+        uses: actions/upload-artifact@v3
+        with:
+          name: All-Artifacts-${{ steps.vars.outputs.sha_short }}
+          path: |
+            target/*.jar
+      - name: Upload JAR file
+        uses: actions/upload-artifact@v3
+        with:
+          path: target/demo-github-actions*.jar
